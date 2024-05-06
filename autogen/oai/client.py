@@ -1,4 +1,5 @@
 from __future__ import annotations
+from autogen.oai.debuglog import   set_async_logging_http_client, set_sync_logging_http_client
 
 import inspect
 import logging
@@ -430,6 +431,9 @@ class OpenAIWrapper:
         else:
             if api_type is not None and api_type.startswith("azure"):
                 self._configure_azure_openai(config, openai_config)
+                set_sync_logging_http_client(openai_config)
+                # print(openai_config)
+                # sys.stderr.write(str(openai_config))
                 client = AzureOpenAI(**openai_config)
                 self._clients.append(OpenAIClient(client))
             elif api_type is not None and api_type.startswith("google"):
@@ -437,6 +441,9 @@ class OpenAIWrapper:
                     raise ImportError("Please install `google-generativeai` to use Google OpenAI API.")
                 self._clients.append(GeminiClient(**openai_config))
             else:
+                set_sync_logging_http_client(openai_config)
+                # print(openai_config)
+                # sys.stderr.write(str(openai_config))
                 client = OpenAI(**openai_config)
                 self._clients.append(OpenAIClient(client))
 
@@ -576,7 +583,8 @@ class OpenAIWrapper:
             # construct the create params
             params = self._construct_create_params(create_config, extra_kwargs)
             # get the cache_seed, filter_func and context
-            cache_seed = extra_kwargs.get("cache_seed", LEGACY_DEFAULT_CACHE_SEED)
+            # cache_seed = extra_kwargs.get("cache_seed", LEGACY_DEFAULT_CACHE_SEED)
+            cache_seed = extra_kwargs.get("cache_seed")
             cache = extra_kwargs.get("cache")
             filter_func = extra_kwargs.get("filter_func")
             context = extra_kwargs.get("context")
